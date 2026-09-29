@@ -1,0 +1,7 @@
+.env
+secrets/
+data/app.db
+__pycache__/
+**/__pycache__/
+*.pyc
+.git

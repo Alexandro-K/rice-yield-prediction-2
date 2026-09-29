@@ -1,0 +1,40 @@
+{
+  "model": "TabPFN (Tuned)",
+  "jumlah_fitur": 18,
+  "data_latih_evaluasi": "Tahun 2023 ke bawah",
+  "data_uji": "Tahun 2024",
+  "jumlah_data_uji": 60,
+  "metrik": {
+    "mae_ton": 11697.059404622394,
+    "rmse_ton": 18746.7265001669,
+    "r2": 0.8308721689297378,
+    "mae_relatif_persen": 20.648830987277012
+  },
+  "kepentingan_kelompok_fitur": [
+    {
+      "kelompok": "Musiman (bulan)",
+      "persen": 31.47448443941473
+    },
+    {
+      "kelompok": "Wilayah (kabupaten)",
+      "persen": 24.8381770682541
+    },
+    {
+      "kelompok": "Perubahan indeks antarbulan (delta)",
+      "persen": 19.15839263061465
+    },
+    {
+      "kelompok": "Nilai indeks bulan sebelumnya (lag)",
+      "persen": 15.123677095308215
+    },
+    {
+      "kelompok": "Rata-rata bergulir 3 bulan",
+      "persen": 7.3443655232205165
+    },
+    {
+      "kelompok": "Indeks vegetasi bulan berjalan",
+      "persen": 2.0609032431877763
+    }
+  ],
+  "catatan": "Metrik dihitung pada data uji tahun 2024 dengan model yang dilatih pada data tahun 2023 ke bawah. Model pada aplikasi dilatih ulang dengan seluruh data yang tersedia. Pengaruh kelompok fitur dihitung dengan permutation importance pada data uji yang berjumlah terbatas, sehingga bersifat indikatif."
+}
