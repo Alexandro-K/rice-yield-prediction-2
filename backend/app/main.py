@@ -32,5 +32,6 @@ def on_startup():
     print("Aplikasi siap: database, GEE, dan model TabPFN sudah diinisialisasi.")
 
 @app.get("/")
+@app.head("/")
 def health_check():
     return {"status": "ok"}

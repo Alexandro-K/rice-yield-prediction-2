@@ -163,7 +163,7 @@ function App() {
                 {statusServer === 'memeriksa'
                   ? 'Menunggu server aktif...'
                   : loading
-                    ? 'Memproses (bisa memakan waktu sekitar 1 hingga 2 menit)...'
+                    ? 'Memproses...'
                     : 'Prediksi'}
               </button>
             </div>
