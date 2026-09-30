@@ -522,3 +522,13 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.server-warmup {
+  background: #fff7ed;
+  color: #9a4a0c;
+  border: 1px solid #fcd9a8;
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}

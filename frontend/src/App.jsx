@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import { predictProduksi, getMapLayer, interpretHasil, predictTrajectory, bangunkanServer } from './api/client'
+import { useState, useEffect } from 'react'
+import {
+  predictProduksi, getMapLayer, interpretHasil, predictTrajectory,
+  ensureServerAwake,
+} from './api/client'
 import PetaSawah from './components/PetaSawah'
 import PanelPenjelasan from './components/PanelPenjelasan'
 import GrafikRiwayat from './components/GrafikRiwayat'
@@ -29,6 +32,17 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [statusServer, setStatusServer] = useState(null)
+  const [percobaanServer, setPercobaanServer] = useState({ ke: 0, total: 0 })
+
+  // Mulai memeriksa/menghidupkan server sejak halaman dibuka, apa pun tab
+  // yang pertama kali dilihat pengguna, agar tab Performa Model juga aman
+  // meski dibuka sebelum tab Prediksi.
+  useEffect(() => {
+    ensureServerAwake((status, ke, total) => {
+      setStatusServer(status)
+      if (ke) setPercobaanServer({ ke, total })
+    })
+  }, [])
 
   const handlePrediksi = async () => {
     setLoading(true)
@@ -39,16 +53,18 @@ function App() {
     setTrajectory(null)
     setInsightError(false)
 
-    setStatusServer('memeriksa')
-    const serverSiap = await bangunkanServer()
+    const serverSiap = await ensureServerAwake((status, ke, total) => {
+      setStatusServer(status)
+      if (ke) setPercobaanServer({ ke, total })
+    })
+
     if (!serverSiap) {
-      setError('Server sedang tidak dapat dijangkau. Silakan coba lagi dalam beberapa saat.')
+      setError('Server tidak dapat dijangkau setelah beberapa kali percobaan. Silakan coba lagi dalam beberapa saat.')
       setLoading(false)
-      setStatusServer(null)
       return
     }
-    setStatusServer(null)
 
+    // Peta berjalan paralel; kegagalannya tidak boleh menggagalkan hasil prediksi.
     const janjiPeta = getMapLayer(kabupaten, tahun, bulan, 'NDVI').then(
       (data) => ({ ok: true, data }),
       () => ({ ok: false }),
@@ -89,6 +105,13 @@ function App() {
       <NavTabs aktif={tab} onGanti={setTab} />
 
       <div className="app-container">
+        {statusServer === 'memeriksa' && (
+          <div className="server-warmup">
+            Menghidupkan server backend, mohon tunggu. Proses ini bisa memakan waktu 3 sampai 5 menit jika
+            server sedang tidak aktif (percobaan {percobaanServer.ke} dari {percobaanServer.total}).
+          </div>
+        )}
+
         {tab === 'prediksi' && (
           <>
             <div className="form-panel">
@@ -121,11 +144,11 @@ function App() {
                 </select>
               </label>
 
-              <button onClick={handlePrediksi} disabled={loading}>
+              <button onClick={handlePrediksi} disabled={loading || statusServer === 'memeriksa'}>
                 {statusServer === 'memeriksa'
-                  ? 'Membangunkan server, mohon tunggu...'
+                  ? 'Menunggu server aktif...'
                   : loading
-                    ? 'Memproses (bisa memakan waktu sekitar 2-3 menit)...'
+                    ? 'Memproses (bisa memakan waktu sekitar 1 hingga 2 menit)...'
                     : 'Prediksi'}
               </button>
             </div>

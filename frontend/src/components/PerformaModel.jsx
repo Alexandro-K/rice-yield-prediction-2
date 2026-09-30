@@ -2,28 +2,55 @@ import { useEffect, useState } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
-import { getModelInfo } from '../api/client'
+import { getModelInfo, ensureServerAwake } from '../api/client'
 import { formatAngka } from '../utils/format'
 
 function PerformaModel() {
   const [info, setInfo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [statusServer, setStatusServer] = useState(null)
+  const [percobaanServer, setPercobaanServer] = useState({ ke: 0, total: 0 })
 
   useEffect(() => {
     let batal = false
-    getModelInfo()
-      .then((data) => { if (!batal) setInfo(data) })
-      .catch(() => { if (!batal) setError(true) })
-      .finally(() => { if (!batal) setLoading(false) })
+
+    ensureServerAwake((status, ke, total) => {
+      if (batal) return
+      setStatusServer(status)
+      if (ke) setPercobaanServer({ ke, total })
+    })
+      .then((siap) => {
+        if (batal) return
+        if (!siap) {
+          setError(true)
+          setLoading(false)
+          return
+        }
+        return getModelInfo()
+          .then((data) => { if (!batal) setInfo(data) })
+          .catch(() => { if (!batal) setError(true) })
+          .finally(() => { if (!batal) setLoading(false) })
+      })
+
     return () => { batal = true }
   }, [])
 
-  if (loading) return <div className="blok blok-info">Memuat informasi model...</div>
+  if (loading) {
+    return (
+      <div className="blok blok-info">
+        {statusServer === 'memeriksa'
+          ? `Menghidupkan server backend, mohon tunggu. Proses ini bisa memakan waktu 3 sampai 5 menit jika server sedang tidak aktif (percobaan ${percobaanServer.ke} dari ${percobaanServer.total}).`
+          : 'Memuat informasi model...'}
+      </div>
+    )
+  }
+
   if (error || !info) {
     return (
       <div className="blok blok-info">
-        Informasi model tidak dapat dimuat. Server mungkin sedang aktif kembali; coba beberapa saat lagi.
+        Informasi model tidak dapat dimuat. Server mungkin sedang tidak dapat dijangkau; coba buka kembali
+        halaman ini dalam beberapa saat.
       </div>
     )
   }
