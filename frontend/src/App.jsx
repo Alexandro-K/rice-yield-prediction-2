@@ -28,6 +28,7 @@ function App() {
   const [insightError, setInsightError] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [statusServer, setStatusServer] = useState(null)
 
   const handlePrediksi = async () => {
     setLoading(true)
@@ -37,6 +38,16 @@ function App() {
     setInsight(null)
     setTrajectory(null)
     setInsightError(false)
+
+    setStatusServer('memeriksa')
+    const serverSiap = await bangunkanServer()
+    if (!serverSiap) {
+      setError('Server sedang tidak dapat dijangkau. Silakan coba lagi dalam beberapa saat.')
+      setLoading(false)
+      setStatusServer(null)
+      return
+    }
+    setStatusServer(null)
 
     const janjiPeta = getMapLayer(kabupaten, tahun, bulan, 'NDVI').then(
       (data) => ({ ok: true, data }),
@@ -111,7 +122,11 @@ function App() {
               </label>
 
               <button onClick={handlePrediksi} disabled={loading}>
-                {loading ? 'Memproses (bisa memakan waktu sekitar 1 menit)...' : 'Prediksi'}
+                {statusServer === 'memeriksa'
+                  ? 'Membangunkan server, mohon tunggu...'
+                  : loading
+                    ? 'Memproses (bisa memakan waktu sekitar 1 menit)...'
+                    : 'Prediksi'}
               </button>
             </div>
 

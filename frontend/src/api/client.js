@@ -39,3 +39,20 @@ export async function predictTrajectory(kabupaten, tahun, bulan) {
   const response = await apiClient.post('/predict-trajectory', { kabupaten, tahun, bulan })
   return response.data
 }
+
+async function bangunkanServer(maksimalPercobaan = 5, jedaMs = 4000) {
+  const urlHealth = API_BASE_URL.replace(/\/api\/?$/, '/')
+  for (let i = 0; i < maksimalPercobaan; i++) {
+    try {
+      await axios.get(urlHealth, { timeout: 10000 })
+      return true
+    } catch {
+      if (i < maksimalPercobaan - 1) {
+        await new Promise((resolve) => setTimeout(resolve, jedaMs))
+      }
+    }
+  }
+  return false
+}
+
+export { bangunkanServer }
