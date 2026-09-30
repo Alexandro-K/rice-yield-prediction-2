@@ -81,7 +81,12 @@ function PanelPenjelasan({ insight, loading, error, hasil }) {
         <KartuVegetasi label="Kondisi vegetasi (SAVI)" nilai={hasil.savi_mean} data={insight.savi} />
       </div>
 
-      <p className="insight-narasi">{insight.narasi}</p>
+      <p className="insight-narasi">{insight.narasi_produksi}</p>
+      <ul className="insight-bullet">
+        {insight.narasi_indeks.map((teks, i) => (
+          <li key={i}>{teks}</li>
+        ))}
+      </ul>
 
       <div className="insight-tabel-wrap">
         <TabelKategori

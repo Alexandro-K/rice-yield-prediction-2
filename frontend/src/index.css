@@ -532,3 +532,52 @@ body {
   margin-bottom: 20px;
   font-size: 0.9rem;
 }
+
+.insight-bullet {
+  margin: 0 0 20px 0;
+  padding-left: 20px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #2c3a31;
+}
+
+.insight-bullet li {
+  margin-bottom: 10px;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-shell .app-container {
+  flex: 1 0 auto;
+}
+
+.page-shell .site-footer {
+  flex-shrink: 0;
+}
+
+.pengantar-panel {
+  margin-bottom: 24px;
+}
+
+.pengantar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.pengantar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: #2c3a31;
+}

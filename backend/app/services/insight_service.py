@@ -10,37 +10,52 @@ NAMA_BULAN = [
     "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ]
 
-# Parafrase dari paper yang diberikan pengguna. NDVI dan EVI punya dasar literatur;
-# SAVI belum punya sumber literatur yang diberikan, sehingga narasinya netral.
 DESKRIPSI_NDVI = {
     "Rendah": (
         "berada pada 25% terendah riwayat NDVI kabupaten ini. Penurunan NDVI dari waktu ke waktu "
-        "umumnya diasosiasikan dengan pencoklatan atau penurunan kehijauan vegetasi (Myers-Smith et al., 2020)."
+        "umumnya diasosiasikan dengan pencoklatan atau penurunan kehijauan vegetasi, misalnya pada fase "
+        "awal tanam atau pascapanen."
     ),
-    "Sedang": "berada pada rentang tengah riwayat NDVI kabupaten ini, sejalan dengan fase pertumbuhan tanaman.",
+    "Sedang": (
+        "berada pada rentang tengah riwayat NDVI kabupaten ini, sejalan dengan fase pertumbuhan tanaman "
+        "yang sedang berlangsung."
+    ),
     "Tinggi": (
         "berada pada 25% tertinggi riwayat NDVI kabupaten ini. Kenaikan NDVI umumnya diasosiasikan dengan "
-        "penghijauan atau kehijauan vegetasi yang meningkat (Myers-Smith et al., 2020), dan NDVI secara umum "
-        "dipakai sebagai ukuran kehijauan aboveground vegetation (Pettorelli et al., 2005; 2011)."
+        "penghijauan atau kehijauan vegetasi yang meningkat, dan NDVI secara umum dipakai sebagai ukuran "
+        "kehijauan vegetasi."
     ),
 }
 
 DESKRIPSI_EVI = {
     "Rendah": (
-        "berada pada 25% terendah riwayat EVI kabupaten ini. Nilai EVI yang menurun dari waktu ke waktu "
-        "dapat mengindikasikan pelemahan kondisi dan kesehatan vegetasi."
+        "berada pada 25% terendah riwayat EVI kabupaten ini. Nilai EVI yang rendah dapat mengindikasikan "
+        "kanopi tanaman yang belum rapat, misalnya pada fase awal tanam atau pascapanen."
     ),
-    "Sedang": "berada pada rentang tengah riwayat EVI kabupaten ini.",
+    "Sedang": (
+        "berada pada rentang tengah riwayat EVI kabupaten ini, menunjukkan tingkat kerapatan kanopi yang "
+        "sedang, sejalan dengan fase pertumbuhan tanaman."
+    ),
     "Tinggi": (
-        "berada pada 25% tertinggi riwayat EVI kabupaten ini. Pada vegetasi sehat, nilai EVI umumnya berkisar "
-        "0,2 sampai 0,8, dengan nilai yang lebih tinggi menunjukkan kanopi yang lebih rapat dan sehat."
+        "berada pada 25% tertinggi riwayat EVI kabupaten ini. Pada vegetasi sehat, nilai EVI umumnya "
+        "berkisar 0,2 sampai 0,8, dengan nilai yang lebih tinggi menunjukkan kanopi yang lebih rapat dan sehat."
     ),
 }
 
 DESKRIPSI_SAVI = {
-    "Rendah": "berada pada 25% terendah riwayat SAVI kabupaten ini.",
-    "Sedang": "berada pada rentang tengah riwayat SAVI kabupaten ini.",
-    "Tinggi": "berada pada 25% tertinggi riwayat SAVI kabupaten ini.",
+    "Rendah": (
+        "berada pada 25% terendah riwayat SAVI kabupaten ini. SAVI mengukur kehijauan vegetasi dengan "
+        "koreksi pengaruh pantulan tanah, sehingga nilai rendah dapat menandakan tutupan vegetasi yang "
+        "masih tipis relatif terhadap permukaan tanah yang terlihat."
+    ),
+    "Sedang": (
+        "berada pada rentang tengah riwayat SAVI kabupaten ini, menunjukkan tutupan vegetasi tingkat "
+        "menengah relatif terhadap riwayat kabupaten ini."
+    ),
+    "Tinggi": (
+        "berada pada 25% tertinggi riwayat SAVI kabupaten ini, menunjukkan tutupan vegetasi yang lebih "
+        "rapat relatif terhadap pantulan tanah di bawahnya."
+    ),
 }
 
 DESKRIPSI_PER_INDEKS = {"NDVI": DESKRIPSI_NDVI, "EVI": DESKRIPSI_EVI, "SAVI": DESKRIPSI_SAVI}
@@ -125,11 +140,8 @@ def bandingkan_musiman(kabupaten: str, bulan: int, prediksi: float) -> tuple[Opt
     return rata, selisih
 
 
-def susun_narasi(kabupaten, tahun, bulan, prediksi,
-                  kategori_prod, sumber_kuartil_prod, rata_bulan, selisih,
-                  ndvi_val, kategori_ndvi, deskripsi_ndvi,
-                  evi_val, kategori_evi, deskripsi_evi,
-                  savi_val, kategori_savi, deskripsi_savi) -> str:
+def susun_narasi_produksi(kabupaten, tahun, bulan, prediksi,
+                           kategori_prod, sumber_kuartil_prod, rata_bulan, selisih) -> str:
     nama_bulan = NAMA_BULAN[bulan - 1]
 
     kalimat = [
@@ -144,18 +156,8 @@ def susun_narasi(kabupaten, tahun, bulan, prediksi,
             f"{nama_bulan} di kabupaten ini ({_format_angka(rata_bulan)} ton)."
         )
 
-    kalimat.append(
-        f"Nilai NDVI pada periode ini adalah {ndvi_val:.4f} (kategori {kategori_ndvi.lower()}), "
-        f"{deskripsi_ndvi}"
-    )
-    kalimat.append(
-        f"Nilai EVI adalah {evi_val:.4f} (kategori {kategori_evi.lower()}), {deskripsi_evi}"
-    )
-    kalimat.append(
-        f"Nilai SAVI adalah {savi_val:.4f} (kategori {kategori_savi.lower()}), {deskripsi_savi}"
-    )
-    kalimat.append(
-        "Seluruh kategori vegetasi dan produksi ditentukan dari kuartil pertama dan ketiga riwayat data "
-        "kabupaten yang bersangkutan. Interpretasi ini bersifat indikatif, bukan pengganti data produksi resmi."
-    )
     return " ".join(kalimat)
+
+def susun_bullet_indeks(nama_indeks: str, nilai: float, kategori: str) -> str:
+    deskripsi = DESKRIPSI_PER_INDEKS[nama_indeks][kategori]
+    return f"Nilai {nama_indeks} adalah {nilai:.4f} (kategori {kategori.lower()}), {deskripsi}"

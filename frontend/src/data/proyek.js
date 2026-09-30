@@ -71,3 +71,16 @@ export const KETERBATASAN = [
   'Ambang kategori vegetasi (NDVI) merupakan pendekatan umum dan belum dikalibrasi khusus untuk lahan sawah di wilayah studi.',
   'Kategori dan penjelasan hasil bersifat indikatif berdasarkan pola historis, dan bukan pengganti data produksi resmi.',
 ]
+
+export const PENGANTAR = {
+  paragraf:
+    'Aplikasi ini memperkirakan produksi padi bulanan tingkat kabupaten di Jawa Timur menggunakan indeks ' +
+    'vegetasi (NDVI, EVI, SAVI) yang dihitung dari citra satelit Sentinel-2, dikombinasikan dengan model ' +
+    'machine learning TabPFN. Prediksi ini membantu memberi gambaran awal kondisi produksi padi tanpa ' +
+    'menunggu laporan resmi, misalnya untuk pemantauan dini atau perencanaan yang bersifat indikatif.',
+  poin: [
+    { label: 'Kabupaten tersedia', isi: 'Bojonegoro, Jember, Ngawi, Tuban, dan Lamongan' },
+    { label: 'Rentang periode', isi: 'Tahun 2019 sampai 2026' },
+    { label: 'Indeks yang digunakan', isi: 'NDVI, EVI, dan SAVI dari citra Sentinel-2' },
+  ],
+}

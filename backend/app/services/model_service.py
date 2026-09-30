@@ -1,6 +1,7 @@
 import pandas as pd
 from tabpfn_client import TabPFNRegressor, set_access_token
 from app.core.config import DATA_DIR, FITUR_FINAL, TABPFN_TOKEN, TABPFN_BEST_PARAMS
+import gc
 
 _model_instance = None
 
@@ -28,10 +29,12 @@ def predict(feature_row: dict) -> float:
     model = load_model()
     df_input = pd.DataFrame([feature_row])[FITUR_FINAL]
     pred = model.predict(df_input.values)
+    gc.collect()
     return float(pred[0])
 
 def predict_batch(feature_rows: list[dict]) -> list[float]:
     model = load_model()
     df_input = pd.DataFrame(feature_rows)[FITUR_FINAL]
     pred = model.predict(df_input.values)
+    gc.collect()
     return [float(p) for p in pred]

@@ -21,13 +21,15 @@ def interpret_hasil(payload: InterpretRequest):
 
     rata_bulan, selisih = svc.bandingkan_musiman(payload.kabupaten, payload.bulan, payload.prediksi_produksi_ton)
 
-    narasi = svc.susun_narasi(
-        payload.kabupaten, payload.tahun, payload.bulan, payload.prediksi_produksi_ton,
-        kategori_prod, sumber_prod, rata_bulan, selisih,
-        payload.ndvi_mean, kat_ndvi, desk_ndvi,
-        payload.evi_mean, kat_evi, desk_evi,
-        payload.savi_mean, kat_savi, desk_savi,
+    narasi_produksi = svc.susun_narasi_produksi(
+    payload.kabupaten, payload.tahun, payload.bulan, payload.prediksi_produksi_ton,
+    kategori_prod, sumber_prod, rata_bulan, selisih,
     )
+    narasi_indeks = [
+        svc.susun_bullet_indeks("NDVI", payload.ndvi_mean, kat_ndvi),
+        svc.susun_bullet_indeks("EVI", payload.evi_mean, kat_evi),
+        svc.susun_bullet_indeks("SAVI", payload.savi_mean, kat_savi),
+    ]
 
     return InterpretResponse(
         kategori_produksi=kategori_prod,
@@ -38,7 +40,8 @@ def interpret_hasil(payload: InterpretRequest):
         ndvi={"kategori": kat_ndvi, "batas": batas_ndvi, "deskripsi": desk_ndvi},
         evi={"kategori": kat_evi, "batas": batas_evi, "deskripsi": desk_evi},
         savi={"kategori": kat_savi, "batas": batas_savi, "deskripsi": desk_savi},
-        narasi=narasi,
+        narasi_produksi=narasi_produksi,
+        narasi_indeks=narasi_indeks,
         riwayat_produksi=svc.get_riwayat_produksi(payload.kabupaten),
     )
 

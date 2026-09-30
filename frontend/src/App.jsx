@@ -11,6 +11,7 @@ import PerformaModel from './components/PerformaModel'
 import TentangProyek from './components/TentangProyek'
 import Footer from './components/Footer'
 import { formatAngka } from './utils/format'
+import { PENGANTAR } from './data/proyek'
 
 const KABUPATEN_LIST = ['Bojonegoro', 'Jember', 'Ngawi', 'Tuban', 'Lamongan']
 const BULAN_LIST = [
@@ -32,15 +33,15 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [statusServer, setStatusServer] = useState(null)
-  const [percobaanServer, setPercobaanServer] = useState({ ke: 0, total: 0 })
+  const [detikServer, setDetikServer] = useState(0)
 
   // Mulai memeriksa/menghidupkan server sejak halaman dibuka, apa pun tab
   // yang pertama kali dilihat pengguna, agar tab Performa Model juga aman
   // meski dibuka sebelum tab Prediksi.
   useEffect(() => {
-    ensureServerAwake((status, ke, total) => {
+    ensureServerAwake((status, detik) => {
       setStatusServer(status)
-      if (ke) setPercobaanServer({ ke, total })
+      if (detik !== undefined) setDetikServer(detik)
     })
   }, [])
 
@@ -53,9 +54,9 @@ function App() {
     setTrajectory(null)
     setInsightError(false)
 
-    const serverSiap = await ensureServerAwake((status, ke, total) => {
+    const serverSiap = await ensureServerAwake((status, detik) => {
       setStatusServer(status)
-      if (ke) setPercobaanServer({ ke, total })
+      if (detik !== undefined) setDetikServer(detik)
     })
 
     if (!serverSiap) {
@@ -64,13 +65,11 @@ function App() {
       return
     }
 
-    // Peta berjalan paralel; kegagalannya tidak boleh menggagalkan hasil prediksi.
-    const janjiPeta = getMapLayer(kabupaten, tahun, bulan, 'NDVI').then(
-      (data) => ({ ok: true, data }),
-      () => ({ ok: false }),
-    )
-
     try {
+      // Permintaan dijalankan berurutan (bukan paralel) untuk menghindari
+      // beban memori berlebih di backend saat GEE dan TabPFN dipanggil
+      // bersamaan, yang sebelumnya menyebabkan proses backend dimatikan
+      // paksa (Out of Memory).
       const dataPrediksi = await predictProduksi(kabupaten, tahun, bulan)
       setHasil(dataPrediksi)
 
@@ -91,7 +90,10 @@ function App() {
         setTrajectory(null)
       }
 
-      const hasilPeta = await janjiPeta
+      const hasilPeta = await getMapLayer(kabupaten, tahun, bulan, 'NDVI').then(
+        (data) => ({ ok: true, data }),
+        () => ({ ok: false }),
+      )
       if (hasilPeta.ok) setMapData(hasilPeta.data)
     } catch (err) {
       setError(err.response?.data?.detail || 'Terjadi kesalahan saat memproses prediksi.')
@@ -101,19 +103,32 @@ function App() {
   }
 
   return (
-    <>
+    <div className="page-shell">
       <NavTabs aktif={tab} onGanti={setTab} />
 
       <div className="app-container">
         {statusServer === 'memeriksa' && (
           <div className="server-warmup">
-            Menghidupkan server backend, mohon tunggu. Proses ini bisa memakan waktu 3 sampai 5 menit jika
-            server sedang tidak aktif (percobaan {percobaanServer.ke} dari {percobaanServer.total}).
+            Menghidupkan server backend, mohon tunggu ({detikServer} detik berjalan, dapat memakan waktu
+            hingga 5 menit). Jika ini terjadi saat demo, hubungi penyelenggara untuk membuka aplikasi
+            beberapa menit lebih awal.
           </div>
         )}
 
         {tab === 'prediksi' && (
           <>
+            <div className="blok pengantar-panel">
+              <p className="blok-teks">{PENGANTAR.paragraf}</p>
+              <div className="pengantar-grid">
+                {PENGANTAR.poin.map((p) => (
+                  <div key={p.label} className="pengantar-item">
+                    <span className="insight-label">{p.label}</span>
+                    <span>{p.isi}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="form-panel">
               <label>
                 Kabupaten
@@ -189,7 +204,7 @@ function App() {
       </div>
 
       <Footer />
-    </>
+    </div>
   )
 }
 

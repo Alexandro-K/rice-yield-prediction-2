@@ -33,5 +33,6 @@ class InterpretResponse(BaseModel):
     ndvi: KategoriIndeks
     evi: KategoriIndeks
     savi: KategoriIndeks
-    narasi: str
+    narasi_produksi: str
+    narasi_indeks: list[str]
     riwayat_produksi: list[TitikRiwayat]
