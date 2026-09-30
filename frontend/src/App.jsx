@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { predictProduksi, getMapLayer, interpretHasil, predictTrajectory } from './api/client'
+import { predictProduksi, getMapLayer, interpretHasil, predictTrajectory, bangunkanServer } from './api/client'
 import PetaSawah from './components/PetaSawah'
 import PanelPenjelasan from './components/PanelPenjelasan'
 import GrafikRiwayat from './components/GrafikRiwayat'
@@ -125,7 +125,7 @@ function App() {
                 {statusServer === 'memeriksa'
                   ? 'Membangunkan server, mohon tunggu...'
                   : loading
-                    ? 'Memproses (bisa memakan waktu sekitar 1 menit)...'
+                    ? 'Memproses (bisa memakan waktu sekitar 2-3 menit)...'
                     : 'Prediksi'}
               </button>
             </div>
